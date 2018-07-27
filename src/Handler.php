@@ -54,14 +54,19 @@ class Handler extends AbstractProcessingHandler
         foreach ($this->recordBuffer as $record) {
             $logContent .= $record['formatted'];
         }
-        $this->socket->write($logContent);
+        if ($logContent) {
+            $this->socket->write($logContent);
+        }
 
         $this->recordBuffer = [];
     }
 
     public function close(): void
     {
-        $this->write([], true);
+        if (count($this->recordBuffer) > 0) {
+            $this->write([], true);
+        }
+
         $this->socket->close();
     }
 
