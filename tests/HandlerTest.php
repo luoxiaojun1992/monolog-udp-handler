@@ -29,7 +29,7 @@ class HandlerTest extends \PHPUnit\Framework\TestCase
             $monolog->info('test');
         }
 
-        usleep(100000);
+        usleep(500000);
 
         $expected = <<<EOF
 test
@@ -45,12 +45,13 @@ test
 
 EOF;
         $this->assertEquals($expected, file_get_contents(__DIR__ . '/Fixtures/logs.txt'));
-        unlink(__DIR__ . '/Fixtures/logs.txt');
     }
 
     public function tearDown()
     {
         parent::tearDown();
+
+        unlink(__DIR__ . '/Fixtures/logs.txt');
 
         shell_exec('kill ' . file_get_contents(__DIR__ . '/Fixtures/server.pid'));
         shell_exec('kill ' . file_get_contents(__DIR__ . '/Fixtures/server.pid'));
