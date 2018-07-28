@@ -54,6 +54,5 @@ EOF;
         unlink(__DIR__ . '/Fixtures/logs.txt');
 
         shell_exec('kill ' . file_get_contents(__DIR__ . '/Fixtures/server.pid'));
-        shell_exec('kill ' . file_get_contents(__DIR__ . '/Fixtures/server.pid'));
     }
 }
