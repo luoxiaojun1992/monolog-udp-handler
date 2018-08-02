@@ -18,9 +18,12 @@ class HandlerTest extends \PHPUnit\Framework\TestCase
             9501,
             \Monolog\Logger::DEBUG,
             true,
-            5
+            5,
+            function ($recordBuffer) {
+                return json_encode($recordBuffer);
+            }
         );
-        $formatter = new \Monolog\Formatter\LineFormatter("%message%\n");
+        $formatter = new \Monolog\Formatter\LineFormatter("%message%");
         $handler->setFormatter($formatter);
         $monolog = new \Monolog\Logger('test');
         $monolog->pushHandler($handler);
@@ -31,19 +34,8 @@ class HandlerTest extends \PHPUnit\Framework\TestCase
 
         usleep(500000);
 
-        $expected = <<<EOF
-test
-test
-test
-test
-test
-test
-test
-test
-test
-test
+        $expected = '["test","test","test","test","test"]["test","test","test","test","test"]';
 
-EOF;
         $this->assertEquals($expected, file_get_contents(__DIR__ . '/Fixtures/logs.txt'));
     }
 

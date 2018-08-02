@@ -22,6 +22,7 @@ class Handler extends AbstractProcessingHandler
     protected $socket;
     private $recordBuffer = [];
     private $recordBufferMaxSize = 10;
+    private $recordBufferFormatter;
 
     /**
      * @param string $host
@@ -29,18 +30,21 @@ class Handler extends AbstractProcessingHandler
      * @param int    $level                 The minimum logging level at which this handler will be triggered
      * @param bool   $bubble                Whether the messages that are handled can bubble up the stack or not
      * @param int    $recordBufferMaxSize   Max size of record buffer
+     * @param \Closure|null $recordBufferFormatter Record buffer formatter
      */
     public function __construct(
         $host,
         $port = 514,
         $level = Logger::DEBUG,
         bool $bubble = true,
-        $recordBufferMaxSize = 10
+        $recordBufferMaxSize = 10,
+        ?\Closure $recordBufferFormatter = null
     )
     {
         parent::__construct($level, $bubble);
         $this->socket = new UdpSocket($host, $port ?: 514);
         $this->recordBufferMaxSize = $recordBufferMaxSize;
+        $this->recordBufferFormatter = $recordBufferFormatter;
     }
 
     protected function write(array $record, $flushAll = false): void
@@ -53,8 +57,16 @@ class Handler extends AbstractProcessingHandler
         }
 
         $logContent = '';
-        foreach ($this->recordBuffer as $record) {
-            $logContent .= $record['formatted'];
+        if (!$this->recordBufferFormatter) {
+            foreach ($this->recordBuffer as $record) {
+                $logContent .= $record['formatted'];
+            }
+        } else {
+            $recordBuffer = [];
+            foreach ($this->recordBuffer as $record) {
+                $recordBuffer[] = $record['formatted'];
+            }
+            $logContent = call_user_func_array($this->recordBufferFormatter, ['recordBuffer' => $recordBuffer]);
         }
         if ($logContent) {
             $this->socket->write($logContent);
