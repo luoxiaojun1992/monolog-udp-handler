@@ -36,9 +36,9 @@ class Handler extends AbstractProcessingHandler
         $host,
         $port = 514,
         $level = Logger::DEBUG,
-        bool $bubble = true,
+        $bubble = true,
         $recordBufferMaxSize = 10,
-        ?\Closure $recordBufferFormatter = null
+        $recordBufferFormatter = null
     )
     {
         parent::__construct($level, $bubble);
@@ -47,7 +47,7 @@ class Handler extends AbstractProcessingHandler
         $this->recordBufferFormatter = $recordBufferFormatter;
     }
 
-    protected function write(array $record, $flushAll = false): void
+    protected function write(array $record, $flushAll = false)
     {
         if (count($record) > 0) {
             $this->recordBuffer[] = $record;
@@ -75,7 +75,7 @@ class Handler extends AbstractProcessingHandler
         $this->recordBuffer = [];
     }
 
-    public function close(): void
+    public function close()
     {
         if (count($this->recordBuffer) > 0) {
             $this->write([], true);
